@@ -1,12 +1,12 @@
-// src/BackgroundManager.cpp
-#include "BackgroundManager.h" // Dołącza deklarację BackgroundManager
-#include "Renderer.h"          // <<< DOŁĄCZ PEŁNĄ DEFINICJĘ RENDERER TUTAJ
+
+#include "BackgroundManager.h" 
+#include "Renderer.h"          
 #include "RandomUtils.h" 
 #include "SimConfig.h" 
-#include <algorithm> // Dla std::min, std::max
-#include <vector>    // Dla std::vector (choć pewnie już w BackgroundManager.h)
+#include <algorithm> 
+#include <vector>    
 
-// --- Implementacja Star ---
+
 Star::Star() 
     : position(0,0,0), base_brightness(0), size(1), 
       twinkle_timer(0.0f), current_brightness_offset(0.0f), twinkle_duration(0.0f) {}
@@ -47,7 +47,7 @@ void Star::updateTwinkle(float deltaTime) {
     }
 }
 
-// --- Implementacja CosmicDustParticle ---
+
 CosmicDustParticle::CosmicDustParticle()
     : position(0,0,0), velocity(0,0,0), alpha(0), size(1) {}
 
@@ -63,7 +63,7 @@ void CosmicDustParticle::initialize(double dust_spread, double max_speed) {
 }
 
 void CosmicDustParticle::updatePosition(double deltaTime, double bounds) {
-    position = position + velocity * deltaTime; // Zakładam, że Vector3d ma operator* ze skalarem i operator+
+    position = position + velocity * deltaTime; 
     if (position.x > bounds) position.x = -bounds + (position.x - bounds);
     if (position.x < -bounds) position.x = bounds - (-bounds - position.x);
     if (position.y > bounds) position.y = -bounds + (position.y - bounds);
@@ -72,10 +72,10 @@ void CosmicDustParticle::updatePosition(double deltaTime, double bounds) {
     if (position.z < -bounds) position.z = bounds - (-bounds - position.z);
 }
 
-// --- Implementacja BackgroundManager ---
-// Definicje statycznych stałych, jeśli nie są `inline` w .h
-// const int BackgroundManager::NUM_STARS; 
-// const int BackgroundManager::NUM_DUST_PARTICLES;
+
+
+
+
 
 BackgroundManager::BackgroundManager() {}
 
@@ -114,9 +114,9 @@ void BackgroundManager::update(float frame_delta_time_seconds, double simulation
     }
 }
 
-// Definicja metody draw - powinna być zgodna z deklaracją w .h
+
 void BackgroundManager::draw(Renderer& renderer_obj, const Camera& camera, float frame_delta_time_seconds) const {
-    SDL_Renderer* sdl_renderer = renderer_obj.getSDLRenderer(); // Teraz Renderer jest znanym typem
+    SDL_Renderer* sdl_renderer = renderer_obj.getSDLRenderer(); 
     if (!sdl_renderer) return;
 
     int screen_width = renderer_obj.getWindowWidth();
@@ -124,9 +124,9 @@ void BackgroundManager::draw(Renderer& renderer_obj, const Camera& camera, float
 
     SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
 
-    // Draw Starfield
+    
     for (const auto& star : starfield_) {
-        // Użyj metody project3DTo2D z obiektu renderer_obj
+        
         ProjectedPoint pp_star = renderer_obj.project3DTo2D(star.position, camera); 
         if (pp_star.visible) {
             int final_brightness_val = static_cast<int>(star.base_brightness + star.current_brightness_offset);
@@ -141,7 +141,7 @@ void BackgroundManager::draw(Renderer& renderer_obj, const Camera& camera, float
         }
     }
 
-    // Draw Cosmic Dust
+    
     for (const auto& dp : cosmic_dust_layer_) {
         ProjectedPoint pp_dust = renderer_obj.project3DTo2D(dp.position, camera);
         if (pp_dust.visible) {

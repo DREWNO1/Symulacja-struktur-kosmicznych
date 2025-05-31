@@ -18,7 +18,7 @@ struct Camera {
     double target_azimuth;
     double target_elevation;
 
-    float lerp_speed; // Camera smoothing speed
+    float lerp_speed; 
 
 
     Camera() : position(0, 0, 400), lookAt(0,0,0), up(0,1,0), fovY_degrees(60.0), nearClip(1.0), farClip(2000.0),

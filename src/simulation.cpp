@@ -1,20 +1,20 @@
-// Simulation.cpp
+
 #include "Simulation.h"
 #include "RandomUtils.h"
 #include "SPHUtils.h"
-#include "Renderer.h" // Dołączony dla std::unique_ptr<Renderer>
-#include "BackgroundManager.h" // Dołączony dla std::unique_ptr<BackgroundManager>
-#include <thread>      // <<< BRAKUJĄCY INCLUDE
+#include "Renderer.h" 
+#include "BackgroundManager.h" 
+#include <thread>      
 
 
 
-// Dołączenia dla ImGui (jeśli logika ImGui jest w Simulation)
+
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 
-// Stałe, które były globalne w main.cpp, a nie pasują do SimConfig
-const int MAX_TRAIL_HISTORY_SIM = 10; // Przemianowane, aby uniknąć konfliktu z ewentualną stałą w Particle.h
+
+const int MAX_TRAIL_HISTORY_SIM = 10; 
 
 Simulation::Simulation()
     : renderer_ptr_(nullptr), background_manager_ptr_(nullptr),
@@ -22,9 +22,9 @@ Simulation::Simulation()
       initial_camera_radius_(simulation_initial_size_ * 2.25),
       initial_camera_azimuth_(0.0),
       initial_camera_elevation_(0.0),
-      mouse_wheel_sensitivity_runtime_(0.0), // Obliczone w initialize
-      // Inicjalizacja pól _gui_ wartościami z SimConfig
-      num_dark_matter_particles_gui_(500), // Domyślne wartości, mogą być nadpisane
+      mouse_wheel_sensitivity_runtime_(0.0), 
+      
+      num_dark_matter_particles_gui_(500), 
       num_gas_particles_gui_(2000),
       time_step_gui_(0.005f),
       G_gui_(static_cast<float>(SimConfig::G)),
@@ -35,7 +35,7 @@ Simulation::Simulation()
       GAS_PARTICLE_JITTER_AMOUNT_gui_(SimConfig::GAS_PARTICLE_JITTER_AMOUNT),
       theta_bh_gui_(static_cast<float>(std::sqrt(SimConfig::THETA_BARNES_HUT_SQUARED))),
       running_(false), simulation_paused_(false), current_time_(0.0),
-      main_loop_counter_(0), total_physics_time_ms_(0), total_physics_steps_(0), // Inicjalizacja pól
+      main_loop_counter_(0), total_physics_time_ms_(0), total_physics_steps_(0), 
       last_frame_ticks_(0), mouse_left_button_down_(false), mouse_prev_x_(0), mouse_prev_y_(0)
 {
 }
@@ -76,10 +76,10 @@ bool Simulation::initialize(const char* window_title, int window_width, int wind
     current_time_ = 0.0;
     running_ = true;
     simulation_paused_ = false;
-    main_loop_counter_ = 0; // Poprawne użycie pola klasy
-    total_physics_time_ms_ = 0; // Poprawne użycie pola klasy
+    main_loop_counter_ = 0; 
+    total_physics_time_ms_ = 0; 
     total_physics_steps_ = 0;
-    last_frame_ticks_ = SDL_GetTicks(); // Poprawne użycie pola klasy
+    last_frame_ticks_ = SDL_GetTicks(); 
 
     return true;
 }
@@ -87,7 +87,7 @@ bool Simulation::initialize(const char* window_title, int window_width, int wind
 void Simulation::cleanup() {
     ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
-    if (ImGui::GetCurrentContext()) { // Sprawdź, czy kontekst istnieje przed zniszczeniem
+    if (ImGui::GetCurrentContext()) { 
         ImGui::DestroyContext();
     }
 
@@ -147,7 +147,7 @@ void Simulation::processEvents() {
         if (event.type == SDL_QUIT) {
             running_ = false;
         }
-        // Window resize jest obsługiwane przez Renderer::beginFrame()
+        
 
         if (!imgui_captures_mouse) {
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
@@ -194,11 +194,11 @@ void Simulation::processEvents() {
 }
 
 
-void Simulation::updateSimulationState() { // Usunięto frame_delta_time_seconds
+void Simulation::updateSimulationState() { 
     camera_.smoothUpdate();
 
     if (!simulation_paused_ && time_step_gui_ > 0) {
-        SimConfig::G = G_gui_; // Użyj pól klasy Simulation
+        SimConfig::G = G_gui_; 
         SimConfig::H_SPH = H_SPH_gui_;
         SimConfig::K_EOS = K_EOS_gui_;
         SimConfig::EPSILON_SQUARED = EPSILON_SQUARED_gui_;
@@ -214,12 +214,12 @@ void Simulation::stepPhysics(double dt) {
     size_t numParticles = particle_list_.size();
     if (numParticles == 0) return;
 
-    // Krok 0: Budowa struktur przyspieszających
+    
     barnes_hut_tree_.build(particle_list_);
     sph_grid_object_.build(particle_list_, SimConfig::H_SPH);
 
-    // Krok 1: Obliczanie gęstości i ciśnienia dla cząstek SPH
-    if (sph_grid_object_.isBuilt()) { // Poprawione użycie isBuilt()
+    
+    if (sph_grid_object_.isBuilt()) { 
         for (size_t i = 0; i < numParticles; ++i) {
             if (particle_list_[i].type == ParticleType::GAS) {
                 particle_list_[i].density = 0.0;
@@ -245,20 +245,20 @@ void Simulation::stepPhysics(double dt) {
         }
     }
     
-    // Krok 2: Obliczanie sił
+    
     std::vector<Vector3d> forceList(numParticles, Vector3d(0.0, 0.0, 0.0));
     unsigned int num_threads = std::thread::hardware_concurrency();
     if (num_threads == 0) num_threads = 1;
     if (numParticles < num_threads * 10) num_threads = 1;
 
-    std::vector<std::thread> threads; // std::thread powinno być teraz rozpoznane
+    std::vector<std::thread> threads; 
     threads.reserve(num_threads);
     size_t chunk_size = numParticles / num_threads;
     size_t remainder = numParticles % num_threads;
     size_t current_start_idx = 0;
     
-    // Przekazujemy particle_list_ jako stałą referencję do wątków,
-    // ponieważ odczytujemy z niej, a siły zapisujemy do osobnego forceList.
+    
+    
     const std::vector<Particle>& particleList_const_ref = particle_list_;
 
 for (unsigned int i_thread = 0; i_thread < num_threads; ++i_thread) {
@@ -266,7 +266,7 @@ for (unsigned int i_thread = 0; i_thread < num_threads; ++i_thread) {
         if (current_start_idx >= numParticles) break;
         size_t end_idx = std::min(current_start_idx + current_chunk_size, numParticles);
         
-        threads.emplace_back( // Wywołanie metody klasy w nowym wątku
+        threads.emplace_back( 
             &Simulation::calculateForcesForChunk, this, 
             current_start_idx,
             end_idx,
@@ -298,7 +298,7 @@ for (unsigned int i_thread = 0; i_thread < num_threads; ++i_thread) {
     }
 }
 
-// Metoda calculateForcesForChunk musi być metodą klasy Simulation lub przyjmować więcej parametrów
+
 void Simulation::calculateForcesForChunk(
     size_t start_idx, size_t end_idx,
     const std::vector<Particle>& particles_read_only,
@@ -309,10 +309,10 @@ void Simulation::calculateForcesForChunk(
         forces_write[i] = Vector3d(0, 0, 0);
         const Particle& p_i = particles_read_only[i];
 
-        // 1. Siły grawitacyjne (Barnes-Hut)
+        
         forces_write[i] = forces_write[i] + tree.calculateForce(p_i, p_i.id);
 
-        // 2. Siły ciśnienia SPH
+        
         if (p_i.type == ParticleType::GAS && sph_grid_ref.isBuilt()) {
             int cell_x_i, cell_y_i, cell_z_i;
             if (sph_grid_ref.getCellCoordinates(p_i.position, cell_x_i, cell_y_i, cell_z_i)) {
@@ -331,65 +331,65 @@ void Simulation::calculateForcesForChunk(
 void Simulation::renderFrame(float frame_delta_time_seconds) {
     if (!renderer_ptr_) return;
 
-    renderer_ptr_->beginFrame(); // Czyści ekran i aktualizuje rozmiar okna
+    renderer_ptr_->beginFrame(); 
 
     if (background_manager_ptr_) {
-        // Poprawione wywołanie - przekazujemy obiekt Renderer przez referencję
-        // oraz odpowiednie argumenty zgodnie z deklaracją w BackgroundManager.h
+        
+        
         background_manager_ptr_->draw(*renderer_ptr_, camera_, frame_delta_time_seconds);
     }
     
     renderer_ptr_->drawParticles(particle_list_, camera_, simulation_initial_size_);
 
-    // Rysowanie ImGui
+    
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    setupGUI(); // Metoda do konfiguracji GUI
+    setupGUI(); 
     ImGui::Render();
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer_ptr_->getSDLRenderer());
 
-    renderer_ptr_->endFrame(); // Prezentuje klatkę
+    renderer_ptr_->endFrame(); 
 }
 
 void Simulation::setupGUI() {
     ImGuiIO& io = ImGui::GetIO();
-    ImGui::Begin("Simulation Control Panel");
-    ImGui::Text("Particle Counts:");
-    ImGui::InputInt("Dark Matter", &num_dark_matter_particles_gui_, 100, 1000);
+    ImGui::Begin("Panel Kontrolny Symulacji");
+    ImGui::Text("Liczba Cząstek:");
+    ImGui::InputInt("Ciemna Materia", &num_dark_matter_particles_gui_, 100, 1000);
     num_dark_matter_particles_gui_ = std::max(0, num_dark_matter_particles_gui_);
-    ImGui::InputInt("Gas", &num_gas_particles_gui_, 100, 1000);
+    ImGui::InputInt("Gaz", &num_gas_particles_gui_, 100, 1000);
     num_gas_particles_gui_ = std::max(0, num_gas_particles_gui_);
     ImGui::Separator();
-    ImGui::Text("Physics Parameters:");
+    ImGui::Text("Parametry Fizyczne:");
 
-    ImGui::SliderFloat("Time Step (dt)", &time_step_gui_, 0.0001f, 0.1f, "%.4f");
-    ImGui::SliderFloat("Gravitational Constant (G)", &G_gui_, 0.1f, 10.0f); // Użyj pola klasy
-    ImGui::SliderFloat("Grav. Softening (eps^2)", &EPSILON_SQUARED_gui_, 0.001f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic); // Użyj pola klasy
-    ImGui::SliderFloat("SPH Smoothing Length (H)", &H_SPH_gui_, 1.0f, 20.0f); // Użyj pola klasy
-    ImGui::SliderFloat("EOS Constant (K)", &K_EOS_gui_, 0.01f, 1.0f); // Użyj pola klasy
-    ImGui::SliderFloat("Barnes-Hut THETA", &theta_bh_gui_, 0.1f, 1.5f, "%.2f"); // Użyj pola klasy
-    ImGui::SliderFloat("Max Expected Speed (Trails)", &MAX_EXPECTED_PARTICLE_SPEED_gui_, 0.1f, 20.0f); // Użyj pola klasy
-    ImGui::SliderFloat("Gas Jitter Amount", &GAS_PARTICLE_JITTER_AMOUNT_gui_, 0.0f, 2.0f); // Użyj pola klasy
+    ImGui::SliderFloat("Krok Czasowy (dt)", &time_step_gui_, 0.0001f, 0.1f, "%.4f");
+    ImGui::SliderFloat("Stała Grawitacji (G)", &G_gui_, 0.1f, 10.0f); 
+    ImGui::SliderFloat("Wygładzanie Graw. (eps^2)", &EPSILON_SQUARED_gui_, 0.001f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic); 
+    ImGui::SliderFloat("Długość Wygładzania SPH (H)", &H_SPH_gui_, 1.0f, 20.0f); 
+    ImGui::SliderFloat("Stała EOS (K)", &K_EOS_gui_, 0.01f, 1.0f); 
+    ImGui::SliderFloat("Parametr THETA (Barnes-Hut)", &theta_bh_gui_, 0.1f, 1.5f, "%.2f"); 
+    ImGui::SliderFloat("Maks. Oczekiwana Prędkość (Smugi)", &MAX_EXPECTED_PARTICLE_SPEED_gui_, 0.1f, 20.0f); 
+    ImGui::SliderFloat("Zakres Drgań Gazu", &GAS_PARTICLE_JITTER_AMOUNT_gui_, 0.0f, 2.0f); 
 
     ImGui::Separator();
-    ImGui::Text("Camera:");
-    ImGui::SliderFloat("Camera Smoothness", &camera_.lerp_speed, 0.01f, 0.3f);
-    ImGui::Text("Position: (%.1f, %.1f, %.1f)", camera_.position.x, camera_.position.y, camera_.position.z);
-    ImGui::Text("R: %.1f, Az: %.2f, El: %.2f", camera_.current_radius, camera_.current_azimuth, camera_.current_elevation);
+    ImGui::Text("Kamera:");
+    ImGui::SliderFloat("Płynność Kamery", &camera_.lerp_speed, 0.01f, 0.3f);
+    ImGui::Text("Pozycja: (%.1f, %.1f, %.1f)", camera_.position.x, camera_.position.y, camera_.position.z);
+    ImGui::Text("Promień: %.1f, Azymut: %.2f, Elewacja: %.2f", camera_.current_radius, camera_.current_azimuth, camera_.current_elevation);
     ImGui::Separator();
-    if (ImGui::Button("Restart Simulation (R)")) {
+    if (ImGui::Button("Restart Symulacji (R)")) {
         restartSimulation();
     }
     ImGui::SameLine();
-    if (ImGui::Button(simulation_paused_ ? "Resume (P)" : "Pause (P)")) {
+    if (ImGui::Button(simulation_paused_ ? "Wznów  (P)" : "Pauza (P)")) {
         simulation_paused_ = !simulation_paused_;
     }
     ImGui::Separator();
-    ImGui::Text("Simulation Time: %.2f", current_time_);
-    ImGui::Text("Frame: %u", main_loop_counter_); // Użyj pola klasy
+    ImGui::Text("Czas Symulacji: %.2f", current_time_);
+    ImGui::Text("Klatka: %u", main_loop_counter_); 
     if (total_physics_steps_ > 0) {
-        ImGui::Text("Avg. Physics Step Time: %.2f ms", static_cast<double>(total_physics_time_ms_) / total_physics_steps_); // Użyj pola klasy
+        ImGui::Text("Śr. Czas Kroku Fizyki: %.2f ms", static_cast<double>(total_physics_time_ms_) / total_physics_steps_); 
     }
     ImGui::Text("FPS: %.1f", io.Framerate);
     ImGui::End();
@@ -440,5 +440,5 @@ void Simulation::restartSimulation() {
     total_physics_steps_ = 0;
     camera_.initializeSpherical(initial_camera_radius_, initial_camera_azimuth_, initial_camera_elevation_);
     simulation_paused_ = false;
-    // std::cout << "Info: Simulation restarted." << std::endl;
+    
 }

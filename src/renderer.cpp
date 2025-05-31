@@ -1,6 +1,6 @@
-// src/renderer.cpp
+
 #include "Renderer.h"
-#include "SimConfig.h" // Dla SimConfig::PI
+#include "SimConfig.h" 
 #include "RandomUtils.h" 
 #include <algorithm>    
 #include <cmath>        
@@ -22,8 +22,15 @@ bool Renderer::initialize(const char* title, int window_width, int window_height
         return false;
     }
 
-    sdl_window_ = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                 window_width_, window_height_, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    sdl_window_ = SDL_CreateWindow(
+        title,
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        window_width_,
+        window_height_,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED
+    );
+
     if (sdl_window_ == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateWindow failed: %s", SDL_GetError());
         SDL_Quit();
@@ -49,7 +56,7 @@ void Renderer::shutdown() {
         SDL_DestroyWindow(sdl_window_);
         sdl_window_ = nullptr;
     }
-    // SDL_Quit(); // Powinno być wywołane raz, na końcu aplikacji
+    
 }
 
 void Renderer::beginFrame() {
@@ -65,19 +72,19 @@ void Renderer::endFrame() {
     SDL_RenderPresent(sdl_renderer_);
 }
 
-// Usunięto definicje Renderer::crossProduct i Renderer::dotProduct
+
 
 ProjectedPoint Renderer::project3DTo2D(const Vector3d& world_pos, const Camera& camera) const {
     ProjectedPoint p{};
     p.visible = false;
 
     Vector3d D = (camera.lookAt - camera.position).normalized();
-    // Użyj metod z Vector3d
+    
     Vector3d R = camera.up.cross(D).normalized(); 
     Vector3d U = D.cross(R);                     
 
     Vector3d rel_pos = world_pos - camera.position;
-    // Użyj metod z Vector3d
+    
     Vector3d view_coords(rel_pos.dot(R), rel_pos.dot(U), rel_pos.dot(D)); 
 
     if (view_coords.z < camera.nearClip || view_coords.z > camera.farClip) return p;
@@ -98,7 +105,7 @@ ProjectedPoint Renderer::project3DTo2D(const Vector3d& world_pos, const Camera& 
     return p;
 }
 
-// Implementacja drawParticles (pełna, jak w poprzedniej odpowiedzi)
+
 void Renderer::drawParticles(const std::vector<Particle>& particleList, const Camera& camera, double simulation_initial_size) {
     if (!sdl_renderer_) return;
 
@@ -173,7 +180,7 @@ void Renderer::drawParticles(const std::vector<Particle>& particleList, const Ca
             int num_trail_segments_to_draw = static_cast<int>(particle.trail_history.size() * (0.5f + speed_factor * 0.5f));
             num_trail_segments_to_draw = std::min(num_trail_segments_to_draw, (int)particle.trail_history.size());
             
-            const int MAX_TRAIL_HISTORY_CONST = 10; // Zastąp stałą z SimConfig jeśli tam jest, lub użyj lokalnej
+            const int MAX_TRAIL_HISTORY_CONST = 10; 
 
             for (const auto& trail_pos : particle.trail_history) {
                 if (trail_idx >= num_trail_segments_to_draw) break;

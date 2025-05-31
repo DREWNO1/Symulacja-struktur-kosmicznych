@@ -1,9 +1,9 @@
-#include "RandomUtils.h" // Zakładamy, że RandomUtils.h jest już zdefiniowany zgodnie z poprzednią sugestią
-#include <algorithm> // Dla std::swap
+#include "RandomUtils.h" 
+#include <algorithm> 
 
-// Definicja globalnego silnika losowego
-// (Jeśli nie chcesz, aby był globalny, można go uczynić statycznym polem klasy RandomUtils
-// lub przekazywać jako argument do funkcji)
+
+
+
 std::mt19937& get_random_engine() {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -24,4 +24,4 @@ float generateRandomFloatFromTo(float min_val, float max_val) {
     return distrib(get_random_engine());
 }
 
-} // namespace RandomUtils
+} 

@@ -1,8 +1,8 @@
 #include "octree.h"
-#include "Particle.h" // Musi zawierać definicję struktury Particle
-                      // (zakładam, że stworzysz taki plik lub Particle jest w innym dostępnym nagłówku)
+#include "Particle.h" 
+                      
 
-// --- Implementacja OctreeNode ---
+
 OctreeNode::OctreeNode(const Vector3d& c, double hw)
     : center(c), half_width(hw), total_mass(0.0), center_of_mass(0,0,0), is_leaf(true), num_particles_in_subtree(0) {
     for (int i = 0; i < 8; ++i) {
@@ -12,9 +12,9 @@ OctreeNode::OctreeNode(const Vector3d& c, double hw)
 
 int OctreeNode::getOctantContainingPoint(const Vector3d& point) const {
     int octant = 0;
-    if (point.x >= center.x) octant |= 1; // Prawo
-    if (point.y >= center.y) octant |= 2; // Góra
-    if (point.z >= center.z) octant |= 4; // Przód
+    if (point.x >= center.x) octant |= 1; 
+    if (point.y >= center.y) octant |= 2; 
+    if (point.z >= center.z) octant |= 4; 
     return octant;
 }
 
@@ -27,10 +27,10 @@ void OctreeNode::subdivide() {
         child_center.z += (i & 4) ? child_half_width : -child_half_width;
         children[i] = std::make_unique<OctreeNode>(child_center, child_half_width);
     }
-    is_leaf = false; // Już nie jest liściem
+    is_leaf = false; 
 }
 
-// --- Implementacja Octree ---
+
 Octree::Octree() : root(nullptr), all_particles_ptr(nullptr) {}
 
 void Octree::build(const std::vector<Particle>& particleList) {
@@ -40,7 +40,7 @@ void Octree::build(const std::vector<Particle>& particleList) {
         return;
     }
 
-    // 1. Znajdź granice dla korzenia drzewa
+    
     Vector3d min_coord(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     Vector3d max_coord(-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max(), -std::numeric_limits<double>::max());
 
@@ -55,16 +55,16 @@ void Octree::build(const std::vector<Particle>& particleList) {
 
     Vector3d center = (min_coord + max_coord) * 0.5;
     double half_width = 0.5 * std::max({max_coord.x - min_coord.x, max_coord.y - min_coord.y, max_coord.z - min_coord.z});
-    half_width = std::max(half_width, 1e-5); // Unikaj zerowej szerokości
+    half_width = std::max(half_width, 1e-5); 
 
     root = std::make_unique<OctreeNode>(center, half_width);
 
-    // 2. Wstaw wszystkie cząstki
+    
     for (size_t i = 0; i < particleList.size(); ++i) {
         insertParticle(root.get(), i);
     }
 
-    // 3. Oblicz rozkład masy
+    
     computeMassDistribution(root.get());
 }
 
@@ -135,17 +135,17 @@ Vector3d Octree::calculateForce(const Particle& target_particle, size_t target_p
     return calculateForceRecursive(target_particle, target_particle_id, root.get());
 }
 
-// Funkcja pomocnicza do obliczania siły grawitacji między dwiema cząstkami.
-// Została przeniesiona tutaj jako funkcja statyczna lub wolna funkcja w tym pliku .cpp,
-// aby uniknąć zależności od globalnej funkcji w main.cpp, jeśli jest to pożądane.
-// Jeśli jest to globalna funkcja, ten blok nie jest potrzebny, a jedynie jej deklaracja
-// (lub upewnienie się, że odpowiedni nagłówek jest dołączony).
-// Zakładając, że definicja `Particle` zawiera `position` i `mass`.
-// Ta funkcja powinna być zdefiniowana przed jej użyciem w `calculateForceRecursive`
-// lub zadeklarowana w `octree.h` (jeśli ma być dostępna również na zewnątrz).
-// Dla uproszczenia, kopiuję ją tutaj jako funkcję statyczną wewnątrz pliku.
-// Można ją też umieścić w przestrzeni nazw anonimowej.
-namespace { // Anonimowa przestrzeń nazw ogranicza widoczność do tego pliku
+
+
+
+
+
+
+
+
+
+
+namespace { 
     Vector3d calculateDirectGravityForce(const Particle& p1, const Particle& p2) {
         Vector3d r_vec = p2.position - p1.position;
         double dist_sq = r_vec.lengthSquared();
@@ -157,12 +157,12 @@ namespace { // Anonimowa przestrzeń nazw ogranicza widoczność do tego pliku
 
         double force_mag = SimConfig::G * p1.mass * p2.mass / dist_sq_softened;
         
-        // Aby uniknąć normalizacji wektora zerowego, jeśli dist_sq == 0 ale EPSILON_SQUARED > 0
-        if (dist_sq == 0.0) return Vector3d(0.0,0.0,0.0); // Siła powinna być zerowa w tym przypadku symetrii
+        
+        if (dist_sq == 0.0) return Vector3d(0.0,0.0,0.0); 
 
         return r_vec.normalized() * force_mag;
     }
-} // namespace
+} 
 
 
 Vector3d Octree::calculateForceRecursive(const Particle& target_particle, size_t target_particle_id, const OctreeNode* node) const {
@@ -173,10 +173,10 @@ Vector3d Octree::calculateForceRecursive(const Particle& target_particle, size_t
     if (node->is_leaf) {
         Vector3d force(0,0,0);
         for(size_t p_idx_in_leaf : node->particle_indices_in_node) {
-            // Używamy target_particle.id (zakładając, że Particle ma pole 'id')
-            // lub porównujemy wskaźniki/indeksy, jeśli ID nie ma.
-            // Oryginalny kod używał target_particle_id, który był indeksem.
-            // Zakładamy, że all_particles_ptr[p_idx_in_leaf].id istnieje.
+            
+            
+            
+            
             if (p_idx_in_leaf != target_particle_id) { 
                  force = force + calculateDirectGravityForce(target_particle, (*all_particles_ptr)[p_idx_in_leaf]);
             }
@@ -188,10 +188,10 @@ Vector3d Octree::calculateForceRecursive(const Particle& target_particle, size_t
     double d_squared = (target_particle.position - node->center_of_mass).lengthSquared();
 
     if (d_squared == 0.0) {
-        // Cząstka jest w środku masy węzła. Musimy zejść głębiej, aby uniknąć dzielenia przez zero
-        // i uzyskać dokładniejszy wynik, chyba że EPSILON_SQUARED jest wystarczająco duże.
-        // W tej sytuacji s/d jest nieskończone, więc warunek theta nie zostanie spełniony.
-        // Powinno się zawsze rekurencyjnie schodzić głębiej.
+        
+        
+        
+        
         Vector3d force_sum(0,0,0);
         for(int i=0; i<8; ++i) {
             if(node->children[i] && node->children[i]->num_particles_in_subtree > 0) {
@@ -205,7 +205,7 @@ Vector3d Octree::calculateForceRecursive(const Particle& target_particle, size_t
         if (node->total_mass == 0.0) return Vector3d(0,0,0);
 
         Vector3d direction = node->center_of_mass - target_particle.position;
-        // d_squared jest już obliczone. Softening jest dodawany tutaj.
+        
         double dist_sq_with_softening = d_squared + SimConfig::EPSILON_SQUARED;
         
         if (dist_sq_with_softening == 0) return Vector3d(0,0,0); 

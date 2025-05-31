@@ -1,17 +1,17 @@
-// Simulation.h
+
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
 #include <vector>
 #include <string>
-#include <memory> // Dla std::unique_ptr
-#include <cstdint> // Dla uint32_t
+#include <memory> 
+#include <cstdint> 
 
-// Dołączenie nagłówka SDL dla typów SDL (jak Uint32, jeśli jest taka potrzeba)
-// Alternatywnie, można użyć standardowych typów jak uint32_t z <cstdint>
-// i rzutować w miejscach interakcji z SDL.
-// Skoro błędy sugerują Uint32, dołączmy odpowiedni nagłówek SDL.
-#include <SDL2/SDL_stdinc.h> // Zawiera definicję Uint32
+
+
+
+
+#include <SDL2/SDL_stdinc.h> 
 
 #include "Vector3d.h"
 #include "Camera.h"
@@ -20,8 +20,8 @@
 #include "SPHGrid.h"
 #include "SimConfig.h"
 
-class Renderer; // Forward declaration
-class BackgroundManager; // Forward declaration
+class Renderer; 
+class BackgroundManager; 
 
 class Simulation {
 public:
@@ -45,33 +45,33 @@ private:
     double initial_camera_radius_;
     double initial_camera_azimuth_;
     double initial_camera_elevation_;
-    double mouse_wheel_sensitivity_runtime_; // Obliczane na podstawie simulationInitialSize
+    double mouse_wheel_sensitivity_runtime_; 
 
-    // Pola dla wartości z GUI (zamiast globalnych statycznych lub w SimConfig)
+    
     int num_dark_matter_particles_gui_;
     int num_gas_particles_gui_;
     float time_step_gui_;
-    float G_gui_; // Odpowiada SimConfig::G
-    float H_SPH_gui_; // Odpowiada SimConfig::H_SPH
-    float K_EOS_gui_; // Odpowiada SimConfig::K_EOS
-    float EPSILON_SQUARED_gui_; // Odpowiada SimConfig::EPSILON_SQUARED
-    float MAX_EXPECTED_PARTICLE_SPEED_gui_; // Odpowiada SimConfig::MAX_EXPECTED_PARTICLE_SPEED
-    float GAS_PARTICLE_JITTER_AMOUNT_gui_; // Odpowiada SimConfig::GAS_PARTICLE_JITTER_AMOUNT
-    float theta_bh_gui_; // Przechowuje THETA (nie THETA^2) dla GUI
+    float G_gui_; 
+    float H_SPH_gui_; 
+    float K_EOS_gui_; 
+    float EPSILON_SQUARED_gui_; 
+    float MAX_EXPECTED_PARTICLE_SPEED_gui_; 
+    float GAS_PARTICLE_JITTER_AMOUNT_gui_; 
+    float theta_bh_gui_; 
 
     bool running_;
     bool simulation_paused_;
     double current_time_;
-    Uint32 main_loop_counter_; // Używamy typu z SDL
-    Uint32 total_physics_time_ms_; // Używamy typu z SDL
+    Uint32 main_loop_counter_; 
+    Uint32 total_physics_time_ms_; 
     int total_physics_steps_;
-    Uint32 last_frame_ticks_; // Używamy typu z SDL
+    Uint32 last_frame_ticks_; 
 
     bool mouse_left_button_down_;
     int mouse_prev_x_, mouse_prev_y_;
 
     void processEvents();
-    void updateSimulationState(); // Usunięto argument, bo deltaTime nie był tu potrzebny
+    void updateSimulationState(); 
     void stepPhysics(double dt);
     void renderFrame(float frame_delta_time_seconds);
     void setupGUI();
@@ -86,4 +86,4 @@ private:
     );
 };
 
-#endif // SIMULATION_H
+#endif 

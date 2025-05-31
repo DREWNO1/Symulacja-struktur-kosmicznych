@@ -1,13 +1,13 @@
-// include/BackgroundManager.h
+
 #ifndef BACKGROUNDMANAGER_H
 #define BACKGROUNDMANAGER_H
 
 #include <vector>
-#include <SDL2/SDL_stdinc.h> // Dla Uint8
+#include <SDL2/SDL_stdinc.h> 
 #include "Vector3d.h"
 #include "Camera.h"
 
-class Renderer; // Forward declaration - to jest poprawne dla pliku .h
+class Renderer; 
 
 struct Star {
     Vector3d position;
@@ -40,7 +40,7 @@ public:
     void initialize(double simulation_size, double starfield_depth_multiplier, double dust_field_scale);
     void update(float frame_delta_time_seconds, double simulation_size, double dust_field_scale);
     
-    // Deklaracja metody draw
+    
     void draw(Renderer& renderer_obj, const Camera& camera, float frame_delta_time_seconds) const;
 
 private:
@@ -51,4 +51,4 @@ private:
     static const int NUM_DUST_PARTICLES = 1000;
 };
 
-#endif // BACKGROUNDMANAGER_H
+#endif 
