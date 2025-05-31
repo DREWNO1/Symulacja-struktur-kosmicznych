@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <SDL2/SDL.h>
-#include "Vector3d.h" // Vector3d.h POWINIEN teraz zawierać .cross() i .dot()
+#include "Vector3d.h" // Vector3d.h zawiera teraz .cross() i .dot()
 #include "Camera.h"
 #include "Particle.h"
 #include "SimConfig.h"
@@ -42,9 +42,8 @@ private:
     int window_width_;
     int window_height_;
 
-    // Usunięto deklaracje crossProduct i dotProduct, ponieważ będą używane metody z Vector3d
-    // Vector3d crossProduct(const Vector3d& a, const Vector3d& b) const;
-    // double dotProduct(const Vector3d& a, const Vector3d& b) const;
+    // Usunięto deklaracje crossProduct i dotProduct,
+    // ponieważ używamy metod z Vector3d
 };
 
 #endif // RENDERER_H

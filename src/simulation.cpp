@@ -330,24 +330,26 @@ void Simulation::calculateForcesForChunk(
 
 void Simulation::renderFrame(float frame_delta_time_seconds) {
     if (!renderer_ptr_) return;
-    renderer_ptr_->beginFrame();
+
+    renderer_ptr_->beginFrame(); // Czyści ekran i aktualizuje rozmiar okna
 
     if (background_manager_ptr_) {
-        background_manager_ptr_->draw(renderer_ptr_->getSDLRenderer(), camera_,
-                                      renderer_ptr_->getWindowWidth(), 
-                                      renderer_ptr_->getWindowHeight(),
-                                      frame_delta_time_seconds);
+        // Poprawione wywołanie - przekazujemy obiekt Renderer przez referencję
+        // oraz odpowiednie argumenty zgodnie z deklaracją w BackgroundManager.h
+        background_manager_ptr_->draw(*renderer_ptr_, camera_, frame_delta_time_seconds);
     }
+    
     renderer_ptr_->drawParticles(particle_list_, camera_, simulation_initial_size_);
 
+    // Rysowanie ImGui
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    setupGUI();
+    setupGUI(); // Metoda do konfiguracji GUI
     ImGui::Render();
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer_ptr_->getSDLRenderer());
 
-    renderer_ptr_->endFrame();
+    renderer_ptr_->endFrame(); // Prezentuje klatkę
 }
 
 void Simulation::setupGUI() {
