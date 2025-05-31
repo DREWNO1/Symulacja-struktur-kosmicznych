@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build with SDL2",
+      "command": "C:\\mingw64\\bin\\g++.exe",
+      "args": [
+        "-I",
+        "include",
+        "-I",
+        "imgui",
+        "-L",
+        "lib",
+        "-o",
+        "main.exe",
+        "src/main.cpp",
+        "src/camera.cpp",
+        "src/vector3d.cpp",
+        "src/octree.cpp",
+        "src/particle.cpp",
+        "src/sphGrid.cpp",
+        "imgui/*.cpp",
+        "-lmingw32",
+        "-lSDL2main",
+        "-lSDL2",
+        "-lSDL2_image",
+        "-flto",
+        "-O3"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Build with SDL2"
+    },
+    {
+      "type": "shell",
+      "label": "Run main.exe",
+      "command": "${workspaceFolder}\\main.exe",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Build and run",
+      "command": "C:\\mingw64\\bin\\g++.exe",
+      "args": [
+        "-I",
+        "include",
+        "-I",
+        "imgui",
+        "-L",
+        "lib",
+        "-o",
+        "main.exe",
+        "src/main.cpp",
+        "src/camera.cpp",
+        "src/vector3d.cpp",
+        "src/octree.cpp",
+        "src/particle.cpp",
+        "src/sphGrid.cpp",
+        "imgui/*.cpp",
+        "-lmingw32",
+        "-lSDL2main",
+        "-lSDL2",
+        "-lSDL2_image",
+        "-flto",
+        "-O3",
+        ";",
+        "./main.exe"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Build and run"
+    }
+  ]
+}
