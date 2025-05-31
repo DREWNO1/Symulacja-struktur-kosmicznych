@@ -1,7 +1,8 @@
+// Vector3d.h
 #pragma once
 
 #include <iostream>
-#include <cmath>
+#include <cmath> // Dla std::sqrt
 
 struct Vector3d {
     double x;
@@ -23,9 +24,22 @@ struct Vector3d {
         return Vector3d(x * scalar, y * scalar, z * scalar);
     }
 
-    Vector3d operator/(double scalar) const;
+    Vector3d operator/(double scalar) const; // Definicja w Vector3d.cpp
 
-    double lengthSquared() const;
-    double length() const;
-    Vector3d normalized() const;
+    double lengthSquared() const; // Definicja w Vector3d.cpp
+    double length() const;        // Definicja w Vector3d.cpp
+    Vector3d normalized() const;  // Definicja w Vector3d.cpp
+
+    // --- DODANE METODY ---
+    double dot(const Vector3d& other) const {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    Vector3d cross(const Vector3d& other) const {
+        return Vector3d(
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x
+        );
+    }
 };
